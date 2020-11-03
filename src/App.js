@@ -1,14 +1,13 @@
 import { Button, FormControl, Input, InputLabel } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import db from "./firebase";
+import firebase from "firebase";
 
 import Todo from "./Components/Todo";
 
 function App() {
-	const [todos, setTodos] = useState([
-		"Complete todo App",
-		"Build Netflix Clone",
-	]);
+	const [todos, setTodos] = useState([]);
 	const [todoInput, setTodoInput] = useState("");
 
 	const setInput = (event) => {
@@ -16,14 +15,22 @@ function App() {
 	};
 
 	useEffect(() => {
-		console.log("Component Mounted");
+		db.collection("todos")
+			.orderBy("timestamp", "desc")
+			.onSnapshot((snapshot) => {
+				setTodos(snapshot.docs.map((doc) => doc.data().task));
+			});
 	}, []);
 
 	const addTodosHandler = (event) => {
 		event.preventDefault();
-		const todoArray = [...todos];
-		todoArray.push(todoInput);
-		setTodos(todoArray);
+		//const todoArray = [...todos];
+		//todoArray.push(todoInput);
+		//setTodos(todoArray);
+		db.collection("todos").add({
+			task: todoInput,
+			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+		});
 		setTodoInput("");
 	};
 
