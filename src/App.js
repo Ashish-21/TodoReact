@@ -18,7 +18,12 @@ function App() {
 		db.collection("todos")
 			.orderBy("timestamp", "desc")
 			.onSnapshot((snapshot) => {
-				setTodos(snapshot.docs.map((doc) => doc.data().task));
+				setTodos(
+					snapshot.docs.map((doc) => ({
+						todoId: doc.id,
+						todoText: doc.data().task,
+					}))
+				);
 			});
 	}, []);
 
@@ -32,6 +37,20 @@ function App() {
 			timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 		});
 		setTodoInput("");
+	};
+
+	const deleteTodoHandler = (todo_id) => {
+		db.collection("todos").doc(todo_id).delete();
+	};
+
+	const updateTodoHandler = (todo_id, updatedInput) => {
+		db.collection("todos").doc(todo_id).set(
+			{
+				task: updatedInput,
+				timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+			},
+			{ merge: true }
+		);
 	};
 
 	return (
@@ -64,8 +83,9 @@ function App() {
 						return (
 							<Todo
 								key={index}
-								todoText={todo}
-								todoNumber={index + 1}
+								todoObj={todo}
+								deleteTodoHandler={deleteTodoHandler}
+								updateTodoHandler={updateTodoHandler}
 							></Todo>
 						);
 					})}
