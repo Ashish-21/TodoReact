@@ -50,6 +50,7 @@ function Todo(props) {
 						<br />
 						<br />
 						<Button
+							disabled={!input}
 							type="submit"
 							color="primary"
 							variant="contained"
